@@ -1,18 +1,20 @@
 # encoding: utf-8
 # !/usr/bin/env python
 
-from selenium import webdriver
-from time import sleep
+import hgw_request
+import league_engine
+import xjw_request
 
-mobileEmulation = {'deviceName': 'iPhone X'}
-options = webdriver.ChromeOptions()
+# hgwEngine = hgw_request.HgwRequest()
+# hgwEngine.login()
+#
+legueEngine = league_engine.LeagueEngine()
+#
+data = legueEngine.test_data()
+print(data)
+# ary = hgwEngine.findLeagueToDetail(data['hgw'])
 
-options.add_experimental_option('mobileEmulation', mobileEmulation)
 
-driver = webdriver.Chrome(executable_path='chromedriver.exe', chrome_options=options)
-
-driver.get('http://m.baidu.com')
-
-sleep(3)
-
-driver.close()
+xjwEngine = xjw_request.XjwRequest()
+xjwEngine.login()
+xjwEngine.findLeagueToDetail(data)
