@@ -18,6 +18,7 @@ class LeagueEngine:
         self.USERID = 'zt007'
         self.PASSWORD = 'wsx123'
         self.URL = "47.111.231.208:8200"
+        self._path = 'tmp/config.ini'
         self.headers = {
             "Host": self.URL,
             "Referer": "http://" + self.URL + "/bet/login",
@@ -248,10 +249,43 @@ class LeagueEngine:
                 sleep(3)
             return ret[0]
 
+    def updateTime(self, t):
+        # interval = datetime.timedelta(hours=-12)
+        d = datetime.datetime.fromtimestamp(t)
+        # r = d.strftime('%Y-%m-%d %H:%M:%S')
+        r = d.strftime('%H:%M')
+        return r
+
+    def saveData(self):
+        config = configparser.ConfigParser()
+        config.read(self._path)
+
+
+        sort_by='percent'
+        url = 'http://' + self.URL + '/bet/api/v1/arbs/pro_search?access_token=' + self.token + '&locale=cn'
+        data = {
+            'sort_by': sort_by,
+            'koef_format': 'decimal',
+        }
+        r = self.session.post(url, data=data, headers=self.headers)
+        r_data = json.loads(r.text)
+        print(r_data)
+        bets = r_data['bets']
+        for d in bets:
+            if d['bookmaker_id'] == 5:  # hgw
+                time = self.updateTime(d['started_at'])
+                if time not in config:
+                    config.add_section(time)
+                v = 'hgw' + d['bookmaker_event_name']
+                if v not in config[time]:
+                    config.set(time, v, '2')
+            config.write(open(self._path, 'w'))
+
+
 
 if __name__ == '__main__':
     wx = wechat2.WeChat()
     wx.TOUSER = 'ZhouJian'
     le = LeagueEngine()
-    ret = le.test_data()
-    print(ret)
+    le.saveData()
+

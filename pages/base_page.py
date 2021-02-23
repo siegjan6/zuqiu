@@ -1,5 +1,7 @@
 # encoding: utf-8
 # !/usr/bin/env python
+from time import sleep
+
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC  # available since 2.26.0
 
@@ -33,12 +35,12 @@ class BasePage:
 
     def find_emelemts(self, by, value):
         try:
-            # 保证元素可见
             print('findEments', by, value)
-            WebDriverWait(self.driver, DEFAULT_SECOND).until(EC.visibility_of_all_elements_located(by, value))
-            return self.driver.find_elements(by,value)
+            WebDriverWait(self.driver, DEFAULT_SECOND).until(EC.visibility_of_element_located((by, value)))
+            sleep(3)
+            return self.driver.find_elements(by, value)
         except:
-            print("页面中没有 %", by, value)
+            print("页面中没有 或等待超时", by, value)
         return None
 
     def switch_to_window(self, i):
@@ -47,3 +49,28 @@ class BasePage:
             self.driver.switch_to_window(self.driver.window_handles[i])
         else:
             print('异常 switch_to_window index:', i)
+
+    def click(self, e):
+        self.driver.execute_script("arguments[0].click();", e)
+        sleep(1)
+
+    def is_alert(self):
+        result = EC.alert_is_present()(self.driver)
+        if result:
+            print(result.text)
+            result.accept()
+            return True
+        else:
+            print("alert未弹出")
+            return False
+
+
+# def findElement(driver,element,by,value):
+#     try:
+#         # 保证元素可见
+#         print('findElement', by, value)
+#         WebDriverWait(self.driver, DEFAULT_SECOND).until(EC.visibility_of_all_elements_located((by, value)))
+#         return self.driver.find_element(by, value)
+#     except:
+#         print("页面中没有 %", by, value)
+#     return None

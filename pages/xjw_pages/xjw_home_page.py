@@ -16,10 +16,14 @@ class XjwHomePage(BasePage):
         return self.driver.find_element_by_class_name('pl-c__col')
 
     def day(self):
-        return self._menus().find_elements_by_class_name('pl-c__btn')[0]
+        menus = self._menus()
+        bbtns = self.find_emelemts(By.CLASS_NAME, 'pl-c__btn')
+        return bbtns[0]
 
     def elary(self):
-        return self._menus().find_elements_by_class_name('pl-c__btn')[1]
+        menus = self._menus()
+        bbtns = self.find_emelemts(By.CLASS_NAME, 'pl-c__btn')
+        return bbtns[1]
 
     def fb(self):
         g = self._games()

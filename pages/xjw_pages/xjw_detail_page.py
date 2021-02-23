@@ -8,7 +8,7 @@ class XjwDetialPage(BasePage):
     登录页
     """
     def _types(self):
-        return self.find_emelemts((By.CLASS_NAME, 'bettype'))
+        return self.find_emelemts(By.CLASS_NAME, 'bettype')
 
     def typeDom(self, betTypeNum):
         """
@@ -23,6 +23,49 @@ class XjwDetialPage(BasePage):
 
     def bettype_items(self, betTypeNum):
         return self.typeDom(betTypeNum).find_elements_by_class_name('bettype_item')
+
+    def comkeypad_lefttop(self):
+        return self.find_emelemt(By.CLASS_NAME, 'comkeypad_lefttop')
+
+    def comkeypad_item(self, v):
+        i = int(v) - 1
+        if i == -1:
+            i = 9
+        items = self.comkeypad_lefttop().find_elements_by_class_name('comkeypad_item')
+        print(items[i].text)
+        return items[i]
+
+    def onClickKeypad(self, value):
+        valueary = list(str(value))
+        for v in valueary:
+            e = self.comkeypad_item(v)
+            self.click(e)
+
+    def comtickets_value(self):
+        """
+        可用资金
+        :return:
+        """
+        return self.find_emelemt(By.CLASS_NAME, 'comtickets_value')
+
+    def textfield_input_value(self):
+        """
+        输入的金额
+        :return:number
+        """
+        txt = self.find_emelemt(By.CLASS_NAME, 'textfield_input').text
+        t = txt.replace(',','')
+        return int(t)
+
+    def comBtn(self):
+        return self.find_emelemt(By.ID, 'comBtn')
+
+    def keypadDark(self):
+        """
+        点击最高
+        :return:
+        """
+        return self.find_emelemt(By.CLASS_NAME, 'keypad-dark')
 
     def updateData(self):
         """
@@ -57,10 +100,10 @@ class XjwDetialPage(BasePage):
                     r = item.find_elements_by_class_name('bettype_oddsbox')[i]
                     vs[pank] = [r, kof]
                 ret_cell = {
-                    name,
-                    vs
+                    'name': name,
+                    'vs': vs
                 }
-                ret_types.append(ret_cell)
+                ret_typeData.append(ret_cell)
             ret_types.append(ret_typeData)
         return ret_types
 
@@ -86,28 +129,75 @@ class XjwDetialPage(BasePage):
                     if betParam in item['vs'].keys():
                         return item['vs'][betParam]
 
-        if betType == 19:  # 找球队名称 17是+的，18是-的，数据网没有+号 为0就没有正负号
-            datas = self.updateData()[0]
+        if betType == 19:  #
+            datas = self.updateData()[1]
             for item in datas:
                 if item['name'] == '大':  # 大
                     if betParam in item['vs'].keys():
                         return item['vs'][betParam]
 
-        if betType == 20:  # 找球队名称 17是+的，18是-的，数据网没有+号 为0就没有正负号
-            datas = self.updateData()[0]
+        if betType == 20:  #
+            datas = self.updateData()[1]
             for item in datas:
                 if item['name'] == '小':  # 小
                     if betParam in item['vs'].keys():
                         return item['vs'][betParam]
 
     def findLeagueDOM(self, betType, betName, betParam):
-        self._findLeague(betType, betName, betParam)[0]
+        return self._findLeague(betType, betName, betParam)[0]
 
     def findLeagueKof(self, betType, betName, betParam):
-        self._findLeague(betType, betName, betParam)[1]
+        return self._findLeague(betType, betName, betParam)[1]
 
 
+    def getDarkValue(self):
+        """
+        最高下注
+        :return:
+        """
+        e = self.find_emelemt(By.CLASS_NAME,'textfield-stake')
+        tx = e.find_element_by_class_name('comtickets_value').text
+        ary = tx.split(' ')
+        v = ary[-1].replace(',', '')
+        print(v)
+        return int(v)
 
+    def getUsableValue(self):
+        """
+        可用资金
+        :return:
+        """
+        e = self.find_emelemts(By.CLASS_NAME, 'comtickets_item')[0]
+        txt = e.text.split('\n')[-1].replace('.', '')
+        return int(txt)
+
+    def onBet(self, betType, betName, betParam, value):
+        e = self.findLeagueDOM(betType, betName, betParam)
+        self.click(e) #打开下注键盘
+
+        isAlert = self.is_alert()
+        if isAlert:
+            return False
+
+        dark = self.getDarkValue()
+        usable = self.getUsableValue()
+
+        if value > usable:
+            print('资金不够下注', value, usable)
+            return False
+        if value > dark:
+            print('资金不够下最高注', value, dark)
+
+        self.onClickKeypad(value)  # 按金额
+
+        input_v = self.textfield_input_value()
+
+        if input_v == value:
+            self.click(self.comBtn())
+            return True
+        else:
+            print('金额异常', input_v, value)
+            return False
 
 
 

@@ -18,5 +18,8 @@ class XjwGameListPage(BasePage):
     def goNextPage(self):
         self.yazhou().click()
         self.switch_to_window(1)
-        self.reset_btn().click()
+        try:
+            self.reset_btn().click()
+        except:
+            print('err reset_btn().click()')
         return XjwHomePage(self.driver)
