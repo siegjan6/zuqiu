@@ -5,7 +5,7 @@ from selenium.webdriver.common.by import By
 
 from pages.xjw_pages.xjw_detail_page import XjwDetialPage
 
-import numpy as np
+
 import configparser
 
 

@@ -243,7 +243,48 @@ class HgwRequest:
             return es
         return None
 
+    def getLeagues(self, isNow=True):
+        """
+        获取所有的比赛
+        :return:
+        """
+        self.onClickToDay()
+        element2 = WebDriverWait(self.DV, self._timeout).until(EC.element_to_be_clickable((By.ID, 'tab_main')))
+        element2.click()
+        sleep(3)
+        # els = self.DV.find_elements_by_class_name('btn_inn_team')
 
+        # 向下滚动找比赛
+        element_new = self.DV.find_element_by_tag_name('html')
+        _leagues = {}
+        retData = {}
+        l = -1
+        while len(_leagues) != l:
+            l = len(_leagues)
+            element_new.send_keys(Keys.ARROW_DOWN * 40)
+            sleep(1)
+            els = self.DV.find_elements_by_class_name('box_lebet_l')
+            length = len(els)
+            for i in range(length):
+                try:
+                    e = els[i]
+                    print(e)
+                    ary = e.text.split('\n')
+                    if len(ary) < 3:
+                        continue
+                    _leagues[ary[0]] = ary[1]
+                    time = ary[0].split(' ')[1]
+                    homeName = ary[1]
+                    awayName = ary[2]
+                    v = homeName + '/' + awayName
+                    if time not in retData.keys():
+                        retData[time] = {}
+                        retData[time]['hgw'] = []
+                    if v not in retData[time]['hgw']:
+                        retData[time]['hgw'].append(homeName + '/' + awayName)
+                except ValueError:
+                    continue
+        return retData
 
 
 if __name__ == '__main__':

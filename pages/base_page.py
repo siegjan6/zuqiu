@@ -8,7 +8,7 @@ from selenium.webdriver.support import expected_conditions as EC  # available si
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
-DEFAULT_SECOND = 20
+DEFAULT_SECOND = 90
 
 
 class BasePage:
@@ -64,6 +64,17 @@ class BasePage:
             print("alert未弹出")
             return False
 
+    def wait_all(self, by, v):
+        print('wait_all', by, v)
+        return WebDriverWait(self.driver, 60).until(EC.presence_of_all_elements_located((by, v)))
+
+    def wait_txt(self, by, v, txt):
+        r = WebDriverWait(self.driver, 60).until(EC.text_to_be_present_in_element((by, v), txt))
+        return r
+
+    def invisibility_of_element_located(self, by, v):
+        print('invisibility_of_element_located', by, v)
+        return WebDriverWait(self.driver, 60).until(EC.invisibility_of_element_located((by, v)))
 
 # def findElement(driver,element,by,value):
 #     try:
