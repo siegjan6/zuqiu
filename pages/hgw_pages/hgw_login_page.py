@@ -26,10 +26,14 @@ class HgwLoginPage(BasePage):
         return self.find_emelemt(By.ID, 'no_btn')
 
     def logIn(self, u, p):
-        # self.find_emelemt(By.PARTIAL_LINK_TEXT, '记住我的帐号')
-        self.username().send_keys(u)
-        self.password().send_keys(p)
-        self.wait_all(By.CLASS_NAME, 'btn_login')
-        self.click(self.login_btn())
-        self.no_btn().click()
-        return HgwHomePage(self.driver)
+        try:
+            self.username().send_keys(u)
+            self.password().send_keys(p)
+            self.wait_all(By.CLASS_NAME, 'btn_login')
+            self.click(self.login_btn())
+            self.no_btn().click()
+            return HgwHomePage(self.driver)
+        except:
+            print('login field')
+            return False
+

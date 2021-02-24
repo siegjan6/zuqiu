@@ -19,6 +19,10 @@ class HgwHomePage(BasePage):
     游戏页
     """
 
+    def __init__(self):
+        super(BasePage, self).__init__()
+        self.url = self.driver.current_url
+
     def today_page(self):  # 今日
         return self.find_emelemt(By.ID, 'today_page')
 
@@ -69,5 +73,9 @@ class HgwHomePage(BasePage):
         return False
 
     def goDay(self, day):
-        self._goDay(day)
-        return HgwLeaguesPage(self.driver)
+        try:
+            self._goDay(day)
+            return HgwLeaguesPage(self.driver)
+        except:
+            print('goDay field')
+            return False

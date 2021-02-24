@@ -14,14 +14,24 @@ DEFAULT_SECOND = 90
 class BasePage:
     def __init__(self, dr, url=None):
         self.driver = dr
-        if not None:
+        if url :
             self.base_url = url
 
     def _open(self, url):
         self.driver.get(url)
 
     def open(self):
-        self._open(self.base_url)
+        """
+        打开网页
+        :return:
+        """
+        try:
+            self._open(self.base_url)
+            return True
+        except:
+            print('open field')
+            return False
+
 
     def find_emelemt(self, by, value):
         try:
