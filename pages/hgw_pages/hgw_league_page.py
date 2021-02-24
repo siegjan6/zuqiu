@@ -10,13 +10,14 @@ import configparser
 import datetime
 from pages.hgw_pages.hgw_detail_page import HgwDetialPage
 
+import getpass
 
 class HgwLeaguesPage(BasePage):
     """
     比赛列表页面
     """
-    _path = 'C:/Users/Administrator/Documents/GitHub/zuqiu/tmp/config.ini'
-
+    _path = 'C:/Users/'+getpass.getuser()+'/Documents/GitHub/zuqiu/tmp/temp.ini'
+    _item_config_path = 'C:/Users/'+getpass.getuser()+'/Documents/GitHub/zuqiu/tmp/item_config.ini'
     def tab_main(self):  # 主要玩法 按钮
 
         return self.find_emelemt(By.ID, 'tab_main')
@@ -103,28 +104,51 @@ class HgwLeaguesPage(BasePage):
         """
         config = configparser.ConfigParser()
         config.read(self._path)
+
+        item_config = configparser.ConfigParser()
+        item_config.read(self._item_config_path)
+
         datas = self.getLeaguesData()
         length = len(datas)
         for i in range(length):
             d = datas[i]
-            time = d['time'].split(' ')[-1]
+            timeary = d['time'].split(' ')
+            time = timeary[-1]
             hour = time.split(':')[0]
             if hour == '24':
                 hour = '0'
             min = '0'
+            month=''
+            day = ''
+            dt = ''
+            temp =timeary[0]
+            if temp == '今日':
+                day = datetime.datetime.now().today()
+                month = datetime.datetime.now().month()
+            elif '星期' in temp:
+                month = timeary[3]
+                day = timeary[1]
+
             if len(time.split(':')) > 1:
                 min = time.split(':')[1]
-            dt = datetime.datetime(2021, 2, 23, int(hour), int(min), 0)
+            try:
+                dt = datetime.datetime(2021, int(month), int(day), int(hour), int(min), 0)
+            except:
+                continue
 
             interval = timedelta(hours=12)
             dt = dt + interval
-            time = dt.strftime('%H:%M')
+            time = dt.strftime('%m-%d-%H:%M')
 
             v = 'hgw/' + d['homeName'] + '/' + d['awayName']
             if time not in config:
                 config.add_section(time)
 
             if v not in config[time]:
-                config.set(time, v, '1')
+                if d['homeName'] not in item_config['name']:
+                    continue
+                if d['awayName'] not in item_config['name']:
+                    continue
+                config.set(time, v, '2')
                 
         config.write(open(self._path, 'w'))

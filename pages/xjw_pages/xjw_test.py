@@ -2,11 +2,12 @@
 # !/usr/bin/env python
 from seleniumwire import webdriver
 
-from pages.hgw_pages.hgw_login_page import HgwLoginPage
-
-user = 'Zhouj5134'
-pwd = 'Lpcaicai21'
-url = 'https://205.201.4.166/'
+from pages.xjw_pages.xjw_login_page import XjwLoginPage
+user = 'iceking666'
+pwd = 'iceking666'
+# user = 'siegjan'
+# pwd = 'Zhouj5134'
+url = 'https://m.uqmxd.com/account/login'
 
 mobileEmulation = {'deviceName': 'iPhone X'}
 OPTIONS = webdriver.ChromeOptions()
@@ -14,26 +15,15 @@ OPTIONS.add_argument('--ignore-certificate-errors')
 OPTIONS.add_experimental_option('mobileEmulation', mobileEmulation)
 DV = webdriver.Chrome(executable_path='chromedriver.exe', options=OPTIONS)
 
-loginPage = HgwLoginPage(DV, url)
+loginPage = XjwLoginPage(DV, url)
 loginPage.open()
-homePage = loginPage.logIn(user, pwd)
-leaguesPage = homePage.goDay(25)
-# v = input('vv')
+gameListPage = loginPage.logIn(user, pwd)
+homePage = gameListPage.goNextPage()
+leaguesPage = homePage.goDay(True)
 leaguesPage.saveData()
-
 leaguesPage.driver.back()
-leaguesPage.driver.back()
-leaguesPage = homePage.goDay(26)
+leaguesPage = homePage.goDay(False)
 leaguesPage.saveData()
-
-leaguesPage.driver.back()
-leaguesPage.driver.back()
-leaguesPage = homePage.goDay(27)
-leaguesPage.saveData()
-
-
-
-#leaguesPage.saveData()
 # v = input('hhh')
 # detailPage = leaguesPage.goLeague('利兹联队', '南安普顿')
 # v = detailPage.onBet(18, '利兹联队', '-0.25', 10)

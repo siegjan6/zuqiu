@@ -4,6 +4,7 @@ from pages.base_page import BasePage
 from selenium.webdriver.common.by import By
 
 from pages.xjw_pages.xjw_detail_page import XjwDetialPage
+import getpass
 
 
 import configparser
@@ -13,7 +14,8 @@ class XjwLeaguesPage(BasePage):
     """
     比赛列表页面
     """
-    _path = 'tmp/config.ini'
+    _path = 'C:/Users/'+getpass.getuser()+'/Documents/GitHub/zuqiu/tmp/config.ini'
+    _item_config_path = 'C:/Users/'+getpass.getuser()+'/Documents/GitHub/zuqiu/tmp/item_config.ini'
 
     def arrows(self):
         ary = []
@@ -66,6 +68,12 @@ class XjwLeaguesPage(BasePage):
         字典格式  时间
         :return:
         """
+        savePath = self._item_config_path
+        saveConfig = configparser.ConfigParser()
+        saveConfig.read(savePath)
+        values = ','.join(saveConfig['name'].values())
+        values = values.split(',')
+
         config = configparser.ConfigParser()
         config.read(self._path)
         datas = self.getLeaguesData()
@@ -74,10 +82,16 @@ class XjwLeaguesPage(BasePage):
             d = datas[i]
             time = d['time'].split(' ')[1]
             v = 'xjw/' + d['homeName'] + '/' + d['awayName']
+            md = d['time'].split(' ')[0].replace('/', '-') + '-'
+            time = md + time
             if time not in config:
                 config.add_section(time)
 
             if v not in config[time]:
+                if d['homeName'] in values:
+                    continue
+                if d['awayName'] in values:
+                    continue
                 config.set(time, v, '1')
 
         config.write(open(self._path, 'w'))

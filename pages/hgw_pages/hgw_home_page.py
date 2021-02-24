@@ -41,13 +41,22 @@ class HgwHomePage(BasePage):
     def btn_dates(self):  # 出现日期按钮 数组
         return self.find_emelemts(By.CLASS_NAME, 'btn_date')
 
+    def symbol_ft(self):
+        self.invisibility_of_element_located(By.ID, 'loading')
+        self.invisibility_of_element_located(By.CLASS_NAME, 'loading')
+        return self.find_emelemt(By.ID, 'symbol_ft')
+
     def _goDay(self, day):
         if isToDay(day):
             self.today_page().click()
+            ft_btn = self.symbol_ft()
+            if not ft_btn:
+                return False
             self.btn_coupon1().click()
             return True
         else:
             self.early_page().click()
+            self.symbol_ft().click()
             self.date_icon().click()
             elements = self.btn_dates()
             for e in elements:
