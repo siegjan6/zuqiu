@@ -8,7 +8,7 @@ from selenium.webdriver.support import expected_conditions as EC  # available si
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
-DEFAULT_SECOND = 90
+DEFAULT_SECOND = 30
 
 
 class BasePage:
@@ -86,6 +86,9 @@ class BasePage:
         print('invisibility_of_element_located', by, v)
         return WebDriverWait(self.driver, 60).until(EC.invisibility_of_element_located((by, v)))
 
+    def find_elements_by_css(self, css_selector):
+        # css_selector = 'input[id*=body_R_FT_]'
+        return self.driver.find_elements_by_css_selector(css_selector)
 # def findElement(driver,element,by,value):
 #     try:
 #         # 保证元素可见

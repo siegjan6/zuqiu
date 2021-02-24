@@ -25,14 +25,15 @@ class HgwLoginPage(BasePage):
     def no_btn(self):
         return self.find_emelemt(By.ID, 'no_btn')
 
-    def logIn(self, u, p):
+    def login(self, u, p):
         try:
             self.username().send_keys(u)
             self.password().send_keys(p)
-            self.wait_all(By.CLASS_NAME, 'btn_login')
+            self.invisibility_of_element_located(By.ID, 'loading')
+            self.invisibility_of_element_located(By.CLASS_NAME, 'loading')
             self.click(self.login_btn())
             self.no_btn().click()
-            return HgwHomePage(self.driver)
+            return HgwHomePage(self.driver, self.driver.current_url)
         except:
             print('login field')
             return False

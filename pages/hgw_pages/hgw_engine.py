@@ -13,6 +13,9 @@ url = 'https://205.201.4.166/'
 class HgwEngine():
     def __init__(self):
         self.homePage = None
+        self.loginPage = None
+        self.leaguesPage = None
+        self.detailPage = None
 
     def _init_driver(self):
         mobileEmulation = {'deviceName': 'iPhone X'}
@@ -35,18 +38,18 @@ class HgwEngine():
             return False
         return True
 
-    def login(self, u, p):
+    def _login(self, u, p):
         try:
-            self.homePage = self.loginPage.logIn(u, p)
+            self.homePage = self.loginPage.login(u, p)
             if self.homePage:
                 return True
             else:
                 return False
         except:
-            print('login field')
+            print('_login field')
             return False
 
-    def quit(self):
+    def _quit(self):
         """
         退出
         :return:
@@ -55,38 +58,62 @@ class HgwEngine():
         self.DV.quit()
         time.sleep(10)  # 10秒后重试，也可以指定时间重试
 
+    def goHome(self):
+        if self.homePage:
+            self.homePage.open()
+            return True
+        return False
+
     def onInit(self):
         """初始化到登录后进入Home页"""
         self._init_driver()
         b = self.loginPage.open()
         if not b:  # 失败后间隔10秒重新初始化
-            self.quit()
+            self._quit()
             return self.onInit()
-        b = self.logIn(user, pwd)
+        b = self._login(user, pwd)
         if not b:  # 失败后间隔10秒重新初始化
-            self.quit()
+            self._quit()
             return self.onInit()
         return True
 
-    def goHome(self):
-        self.homePage.open()
+    def getKof(self, day, homeName, awayName, betType, betName, betParam):
+        self.leaguesPage = self.homePage.goDay(day)
+        if not self.leaguesPage:
 
+            return False
+        self.detailPage = self.leaguesPage.goLeague(homeName, awayName)
+        if not self.detailPage: return False
+        kof = self.detailPage.findLeagueKof(betType, betName, betParam)
+        return kof
 
-loginPage.open()
-homePage = loginPage.logIn(user, pwd)
-leaguesPage = homePage.goDay(25)
-# v = input('vv')
-leaguesPage.saveData()
+    def xiazhu(self, betType, betName, betParam, value):
+        v = hgwEngine.detailPage.onBet(betType, betName, betParam, value)
+        return v
 
-leaguesPage.driver.back()
-leaguesPage.driver.back()
-leaguesPage = homePage.goDay(26)
-leaguesPage.saveData()
+if __name__ == '__main__':
+    hgwEngine = HgwEngine()
+    hgwEngine.onInit()
+    b = hgwEngine.getKof(25, '阿贾克斯', '里尔', 17, '阿贾克斯', 0.25)
+    if b:
+        b = hgwEngine.detailPage.onBet(17, '阿贾克斯', 0.25, 50)
 
-leaguesPage.driver.back()
-leaguesPage.driver.back()
-leaguesPage = homePage.goDay(27)
-leaguesPage.saveData()
+#
+# loginPage.open()
+# homePage = loginPage.logIn(user, pwd)
+# leaguesPage = homePage.goDay(25)
+# # v = input('vv')
+# leaguesPage.saveData()
+#
+# leaguesPage.driver.back()
+# leaguesPage.driver.back()
+# leaguesPage = homePage.goDay(26)
+# leaguesPage.saveData()
+#
+# leaguesPage.driver.back()
+# leaguesPage.driver.back()
+# leaguesPage = homePage.goDay(27)
+# leaguesPage.saveData()
 
 # leaguesPage.saveData()
 # v = input('hhh')

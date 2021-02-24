@@ -142,12 +142,19 @@ class XjwDetialPage(BasePage):
                 if item['name'] == '小':  # 小
                     if betParam in item['vs'].keys():
                         return item['vs'][betParam]
+        return False
 
     def findLeagueDOM(self, betType, betName, betParam):
-        return self._findLeague(betType, betName, betParam)[0]
+        ary = self._findLeague(betType, betName, betParam)
+        if ary:
+            return ary[0]
+        return False
 
     def findLeagueKof(self, betType, betName, betParam):
-        return self._findLeague(betType, betName, betParam)[1]
+        ary = self._findLeague(betType, betName, betParam)
+        if ary:
+            return ary[1]
+        return False
 
 
     def getDarkValue(self):

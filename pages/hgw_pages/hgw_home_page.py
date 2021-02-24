@@ -19,9 +19,9 @@ class HgwHomePage(BasePage):
     游戏页
     """
 
-    def __init__(self):
-        super(BasePage, self).__init__()
-        self.url = self.driver.current_url
+    # def __init__(self):
+    #     super(BasePage, self).__init__()
+    #     self.url = self.driver.current_url
 
     def today_page(self):  # 今日
         return self.find_emelemt(By.ID, 'today_page')
