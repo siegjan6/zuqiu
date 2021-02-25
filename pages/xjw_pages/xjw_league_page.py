@@ -33,9 +33,13 @@ class XjwLeaguesPage(BasePage):
     def getLeaguesData(self):
         self.onAdjustArrow()
         elves = self.leagues()
+        print(elves)
         retData = []
         for e in elves:
-            ary = e.text.split('\n')
+            try:
+                ary = e.text.split('\n')
+            except:
+                continue
             if len(ary) >= 3:
                 time = ary[0]
                 homeName = ary[1]
@@ -98,8 +102,8 @@ class XjwLeaguesPage(BasePage):
 
 
     def onAdjustArrow(self):
-        arrows = self.arrows()
         try:
+            arrows = self.arrows()
             for e in arrows:
                 self.click(e)
                 sleep(0.5)

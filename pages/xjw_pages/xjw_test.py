@@ -3,10 +3,10 @@
 from seleniumwire import webdriver
 
 from pages.xjw_pages.xjw_login_page import XjwLoginPage
-user = 'iceking666'
-pwd = 'iceking666'
-# user = 'siegjan'
-# pwd = 'Zhouj5134'
+# user = 'iceking666'
+# pwd = 'iceking666'
+user = 'siegjan'
+pwd = 'Zhouj5134'
 url = 'https://m.uqmxd.com/account/login'
 
 mobileEmulation = {'deviceName': 'iPhone X'}
@@ -17,8 +17,7 @@ DV = webdriver.Chrome(executable_path='chromedriver.exe', options=OPTIONS)
 
 loginPage = XjwLoginPage(DV, url)
 loginPage.open()
-gameListPage = loginPage.logIn(user, pwd)
-homePage = gameListPage.goNextPage()
+homePage = loginPage.login(user, pwd)
 leaguesPage = homePage.goDay(True)
 leaguesPage.saveData()
 leaguesPage.driver.back()

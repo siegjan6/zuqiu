@@ -3,6 +3,7 @@
 # SaveTest
 from seleniumwire import webdriver
 
+import datetime
 from pages.hgw_pages.hgw_login_page import HgwLoginPage
 
 user = 'Zhouj5134'
@@ -17,20 +18,16 @@ DV = webdriver.Chrome(executable_path='chromedriver.exe', options=OPTIONS)
 
 loginPage = HgwLoginPage(DV, url)
 loginPage.open()
-homePage = loginPage.logIn(user, pwd)
-leaguesPage = homePage.goDay(25)
-# v = input('vv')
-leaguesPage.saveData()
+homePage = loginPage.login(user, pwd)
 
-leaguesPage.driver.back()
-leaguesPage.driver.back()
-leaguesPage = homePage.goDay(26)
-leaguesPage.saveData()
-
-leaguesPage.driver.back()
-leaguesPage.driver.back()
-leaguesPage = homePage.goDay(27)
-leaguesPage.saveData()
+day = datetime.datetime.now().day
+for i in range(5):
+    leaguesPage = homePage.goDay(day)
+    if leaguesPage:
+        leaguesPage.saveData()
+        leaguesPage.driver.back()
+        leaguesPage.driver.back()
+        day = day+1
 
 
 

@@ -22,8 +22,7 @@ class XjwLoginPage(BasePage):
         self.username().send_keys(u)
         self.password().send_keys(p)
         self.login_btn().click()
-        # temp = input('等待验证码通过 y or n')
-        # 等待验证码消失
+        temp = input('完成验证码后，按任意键继续')
         self.invisibility_of_element_located(By.ID, 'dx_captcha_basic_pic_1')
         self.xjwGanmeList = XjwGameListPage(self.driver)
         page = self.xjwGanmeList.goNextPage()

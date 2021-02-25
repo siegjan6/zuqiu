@@ -167,7 +167,7 @@ class HgwLeaguesPage(BasePage):
             temp =timeary[0]
             if temp == '今日':
                 day = datetime.datetime.now().today()
-                month = datetime.datetime.now().month()
+                month = datetime.datetime.now().month
             elif '星期' in temp:
                 month = timeary[3]
                 day = timeary[1]

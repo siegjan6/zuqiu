@@ -1,27 +1,34 @@
 # encoding: utf-8
 # !/usr/bin/env python
 import time
-
+import datetime
 from seleniumwire import webdriver
 
 from pages.xjw_pages.xjw_login_page import XjwLoginPage
-user = 'iceking666'
-pwd = 'iceking666'
-# user = 'siegjan'
-# pwd = 'Zhouj5134'
+# user = 'iceking666'
+# pwd = 'iceking666'
+user = 'siegjan'
+pwd = 'Zhouj5134'
 url = 'https://m.uqmxd.com/account/login'
 
 class XjwEngine():
     def __init__(self):
+        self.is_init = False
+        self.koef = None
         pass
 
     def _init_driver(self):
+        self.is_init = False
+        self.koef = None
         mobileEmulation = {'deviceName': 'iPhone X'}
         OPTIONS = webdriver.ChromeOptions()
         OPTIONS.add_argument('--ignore-certificate-errors')
         OPTIONS.add_experimental_option('mobileEmulation', mobileEmulation)
-        self.DV = webdriver.Firefox(executable_path='geckodriver.exe', options=OPTIONS)
-        self.DV.set_window_position(100, 0)
+        self.DV = webdriver.Chrome(executable_path='chromedriver.exe', options=OPTIONS)
+        width = self.DV.get_window_size().get("width")
+        height = self.DV.get_window_size().get("height")
+        self.DV.set_window_position(width / 2, 0)
+        self.DV.set_window_size(375, height)
         self.loginPage = XjwLoginPage(self.DV, url)
         return True
 
@@ -41,7 +48,7 @@ class XjwEngine():
         try:
             self.homePage = self.loginPage.login(u, p)
             if self.homePage:
-                return True
+                return self.homePage
             else:
                 return False
         except:
@@ -58,31 +65,38 @@ class XjwEngine():
         time.sleep(5)  # 10秒后重试，也可以指定时间重试
 
     def goHome(self):
-        return self.loginPage.goHome()
+        try:
+            if self.loginPage:
+                self.loginPage.goHome()
+            return True
+        except:
+            return False
 
     def onInit(self):
         """初始化到登录后进入Home页"""
         self._init_driver()
         b = self.loginPage.open()
-        if not b:  # 失败后间隔10秒重新初始化
+        if not b:
+            self.is_init = False
             return False
-        b = self._login(user, pwd)
-        if not b:  # 失败后间隔10秒重新初始化
+        self.homePage = self._login(user, pwd)
+        if not self.homePage:
+            self.is_init = False
             return False
+        self.is_init = True
         return True
 
     def getKof(self, day, homeName, awayName, betType, betName, betParam):
-        if self.goHome():
-            self.leaguesPage = self.homePage.goDay(day)
-            if not self.leaguesPage:
-                return False
-        return False
+        isToDay = datetime.datetime.now().day == day
+        self.leaguesPage = self.homePage.goDay(isToDay)
+        if not self.leaguesPage:
+            return False
 
         self.detailPage = self.leaguesPage.goLeague(homeName, awayName)
         if not self.detailPage:
             return False
-        kof = self.detailPage.findLeagueKof(betType, betName, betParam)
-        return kof
+        self.koef = self.detailPage.findLeagueKof(betType, betName, betParam)
+        return self.koef
 
     def xiazhu(self, betType, betName, betParam, value):
         v = self.detailPage.onBet(betType, betName, betParam, value)

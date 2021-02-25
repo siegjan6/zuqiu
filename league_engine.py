@@ -247,6 +247,7 @@ class LeagueEngine:
             ret = self.request_data()
             if len(ret) == 0:
                 sleep(3)
+                continue
             return ret[0]
 
     def updateTime(self, t):
