@@ -26,7 +26,8 @@ class BasePage:
         :return:
         """
         try:
-            self._open(self.base_url)
+            if self.driver.current_url != self.base_url:
+                self._open(self.base_url)
             return True
         except:
             print('open field')
@@ -59,6 +60,9 @@ class BasePage:
             self.driver.switch_to_window(self.driver.window_handles[i])
         else:
             print('异常 switch_to_window index:', i)
+
+    def close(self):
+        self.driver.close()
 
     def click(self, e):
         self.driver.execute_script("arguments[0].click();", e)

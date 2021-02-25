@@ -18,9 +18,22 @@ class XjwLoginPage(BasePage):
     def login_btn(self):
         return self.find_emelemt(By.ID, 'gologin')
 
-    def logIn(self, u, p):
+    def login(self, u, p):
         self.username().send_keys(u)
         self.password().send_keys(p)
         self.login_btn().click()
-        temp = input('等待验证码通过 y or n')
-        return XjwGameListPage(self.driver)
+        # temp = input('等待验证码通过 y or n')
+        # 等待验证码消失
+        self.invisibility_of_element_located(By.ID, 'dx_captcha_basic_pic_1')
+        self.xjwGanmeList = XjwGameListPage(self.driver)
+        page = self.xjwGanmeList.goNextPage()
+        return page
+
+    def goHome(self):
+        hands = self.driver.window_handles
+        if len(hands) > 1:
+            self.close()
+            self.switch_to_window(0)
+            return self.xjwGanmeList.goNextPage()
+        else:
+            print('异常 switch_to_window goHome:')

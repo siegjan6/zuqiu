@@ -1,18 +1,17 @@
 # encoding: utf-8
 # !/usr/bin/env python
-# SaveTest
-import threading
+import time
 
 from seleniumwire import webdriver
-import time
-from pages.hgw_pages.hgw_login_page import HgwLoginPage
 
-user = 'Zhouj5134'
-pwd = 'Lpcaicai21'
-url = 'https://205.201.4.166/'
+from pages.xjw_pages.xjw_login_page import XjwLoginPage
+user = 'iceking666'
+pwd = 'iceking666'
+# user = 'siegjan'
+# pwd = 'Zhouj5134'
+url = 'https://m.uqmxd.com/account/login'
 
-
-class HgwEngine():
+class XjwEngine():
     def __init__(self):
         pass
 
@@ -21,8 +20,9 @@ class HgwEngine():
         OPTIONS = webdriver.ChromeOptions()
         OPTIONS.add_argument('--ignore-certificate-errors')
         OPTIONS.add_experimental_option('mobileEmulation', mobileEmulation)
-        self.DV = webdriver.Chrome(executable_path='chromedriver.exe', options=OPTIONS)
-        self.loginPage = HgwLoginPage(self.DV, url)
+        self.DV = webdriver.Firefox(executable_path='geckodriver.exe', options=OPTIONS)
+        self.DV.set_window_position(100, 0)
+        self.loginPage = XjwLoginPage(self.DV, url)
         return True
 
     def _goDay(self, day):
@@ -58,22 +58,17 @@ class HgwEngine():
         time.sleep(5)  # 10秒后重试，也可以指定时间重试
 
     def goHome(self):
-        if self.homePage:
-            self.homePage.open()
-            return True
-        return False
+        return self.loginPage.goHome()
 
     def onInit(self):
         """初始化到登录后进入Home页"""
         self._init_driver()
         b = self.loginPage.open()
         if not b:  # 失败后间隔10秒重新初始化
-            self._quit()
-            return self.onInit()
+            return False
         b = self._login(user, pwd)
         if not b:  # 失败后间隔10秒重新初始化
-            self._quit()
-            return self.onInit()
+            return False
         return True
 
     def getKof(self, day, homeName, awayName, betType, betName, betParam):
@@ -93,10 +88,20 @@ class HgwEngine():
         v = self.detailPage.onBet(betType, betName, betParam, value)
         return v
 
+
 if __name__ == '__main__':
-    hgwEngine = HgwEngine()
-    hgwInit_thread = threading.Thread(target=hgwEngine.onInit)
-    hgwInit_thread.start()
-    print('hgwInit_thread start ing')
-    hgwInit_thread.join()
-    print('hgwInit_thread end')
+    xjwEngine = XjwEngine()
+    v = xjwEngine.onInit()
+    if v:
+        kof = xjwEngine.getKof(25, '罗勇', '巴吞联', 17, '罗勇', 2)
+        if kof:
+            v = xjwEngine.xiazhu(17, '罗勇', '2', 20)
+            print(v)
+    else:
+        xjwEngine.goHome()
+
+
+# v = input('hhh')
+# detailPage = leaguesPage.goLeague('利兹联队', '南安普顿')
+# v = detailPage.onBet(18, '利兹联队', '-0.25', 10)
+# k = 1

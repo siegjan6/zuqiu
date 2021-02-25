@@ -1,6 +1,22 @@
 from pages.base_page import BasePage
 from selenium.webdriver.common.by import By
+import time
+def isAllZh(s):
+    """
+    包含汉字的返回TRUE
+    :param s:
+    :return:
+    """
+    for c in s:
+        if '\u4e00' <= c <= '\u9fa5':
+            return True
+    return False
 
+def getParam(txt):
+    txts = txt.split('\n')
+    if isAllZh(txts[3]):
+        return txts[1]
+    return txts[3]
 
 class HgwDetialPage(BasePage):
 
@@ -14,10 +30,10 @@ class HgwDetialPage(BasePage):
         """
         betParam = abs(float(betParam))
         if betType in (17, 18):  # 找球队名称 17是+的，18是-的，数据网没有+号 为0就没有正负号
-            eves = self.head_R_FT_S()
+            eves = self.body_R_FT_S()
             for e in eves:
                 _eles = e.find_elements_by_class_name('btn_lebet_odd')
-                param = e.text.split('\n')[1]  # pank
+                param = getParam(e.text)  # pank
                 if '/' in param:
                     a = param.split('/')
                     param = float((float(a[0]) + float(a[1]))/2)
@@ -51,8 +67,9 @@ class HgwDetialPage(BasePage):
                         kof = txts[-1]
                         if betName == name:
                             return [kof, v]
+        print('没有找到盘口')
         return False
-
+#self.find_elements_by_css( 'div[id*=body_R_FT_]')[0].find_elements_by_class_name('btn_lebet_odd')[0].text
 
     def findLeagueKof(self, betType, betName, betParam):
         ary = self._findLeague(betType, betName, betParam)
@@ -66,9 +83,9 @@ class HgwDetialPage(BasePage):
             return ary[1]
         return False
 
-    def head_R_FT_S(self):  # 让球
+    def body_R_FT_S(self):  # 让球
         css_selector = 'div[id*=body_R_FT_]'
-        return self.find_elements_by_css( 'div[id*=body_R_FT_]>div[id*=bet_]')
+        return self.find_elements_by_css( 'div[id*=body_R_FT_]')
 
     def body_OU_FT_S(self):  # 大小
         css_selector = 'div[id*=body_OU_FT_]>div[id*=bet_]'
@@ -80,26 +97,30 @@ class HgwDetialPage(BasePage):
         dom = self.findLeagueDOM( betType, betName, betParam)
         dom.click()  # 选择kof
         self.div_showlimit().click() #弹出
-        max = self.fmax_limit().text.replace(',', '')
+        max = self.max_limit().text.replace(',', '')
         max = int(max)
         if value > max:
             print('资金不够下最高注', value, max)
             return False
+
+        self.bet_gold_tt().click()
+
         vs = list(str(value))
         for v in vs:
             self.num_btn(v).click()
 
         gold = self.bet_gold2_tt().text.replace(',', '')
-        gold = int(gold)
+        gold = int(float(gold))
         if gold != value:
             print('金额异常', gold, value)
             return False
-        self.bet_gold_tt().click()
-        #  此处会跳出下注成功，判断后返回
+        self.betBtn_txt().click()
+        time.sleep(1)
+        b = self.orderMsg().text == '您已成功投注。'
         return True
 
-
-
+    def orderMsg(self):  # 输入框
+        return self.find_emelemt(By.ID, 'orderMsg')
 
     def bet_gold_tt(self):  # 输入框
         return self.find_emelemt(By.ID,'bet_gold_tt')

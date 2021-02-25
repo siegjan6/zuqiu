@@ -1,27 +1,32 @@
 # encoding: utf-8
 # !/usr/bin/env python
-from seleniumwire import webdriver
 
-from pages.xjw_pages.xjw_login_page import XjwLoginPage
-# user = 'iceking666'
-# pwd = 'iceking666'
-user = 'siegjan'
-pwd = 'Zhouj5134'
-url = 'https://m.uqmxd.com/account/login'
+import threading
+import league_engine
+from pages.hgw_pages.hgw_engine import HgwEngine
+from pages.xjw_pages.xjw_engine import XjwEngine
 
-mobileEmulation = {'deviceName': 'iPhone X'}
-OPTIONS = webdriver.ChromeOptions()
-OPTIONS.add_argument('--ignore-certificate-errors')
-OPTIONS.add_experimental_option('mobileEmulation', mobileEmulation)
-DV = webdriver.Chrome(executable_path='chromedriver.exe', options=OPTIONS)
 
-loginPage = XjwLoginPage(DV, url)
-loginPage.open()
-gameListPage = loginPage.logIn(user, pwd)
-homePage = gameListPage.goNextPage()
-leaguesPage = homePage.goDay(True)
-#leaguesPage.saveData()
-# v = input('hhh')
-detailPage = leaguesPage.goLeague('利兹联队', '南安普顿')
-v = detailPage.onBet(18, '利兹联队', '-0.25', 10)
-k = 1
+
+if __name__ == '__main__':
+    dataEng = league_engine.LeagueEngine()
+    xjwEng = XjwEngine()
+    hgwEng = HgwEngine()
+
+    def init_hgw():
+        hgwInit_thread = threading.Thread( target=hgwEng.onInit)
+        hgwInit_thread.start()
+        return hgwInit_thread
+
+    def init_xjw():
+        hgwInit_thread = threading.Thread( target=xjwEng.onInit)
+        hgwInit_thread.start()
+        return hgwInit_thread
+
+    data = dataEng.request_data()
+    print ('init ing')
+    hinit = init_hgw()
+    xinit = init_xjw()
+    hinit.join(30)
+    xinit.join(30)
+    print('data eng', data)
