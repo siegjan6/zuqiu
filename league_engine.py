@@ -65,6 +65,14 @@ class LeagueEngine:
         rets = self.update_data(r_data)
         return rets
 
+    def request_data2(self):
+        while True:
+            ret = self.request_data()
+            if len(ret) == 0:
+                sleep(3)
+                continue
+            return ret
+
     # 得到球队名称
     def get_bet_name(self, arb):
         if arb['bet1_id'] == arb['hgw']['id']:
@@ -81,7 +89,7 @@ class LeagueEngine:
         if data == []:
             return data
         # 遍历利润率
-        print(data)
+        # print(data)
         for arb in data['arbs']:
             arb['bet1_v'] = self.find_betid(arb['bet1_id'], data)
             arb['bet2_v'] = self.find_betid(arb['bet2_id'], data)

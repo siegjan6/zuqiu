@@ -48,7 +48,7 @@ class HgwLeaguesPage(BasePage):
             for i in range(length):
                 try:
                     e = temams[i]
-                    print(e.text)
+                    # print(e.text)
                     if not e:
                         continue
                     if not e.text:
@@ -100,7 +100,7 @@ class HgwLeaguesPage(BasePage):
             for i in range(length):
                 try:
                     e = temams[i]
-                    print(e.text)
+                    # print(e.text)
                     if not e:
                         continue
                     if not e.text:
@@ -166,7 +166,7 @@ class HgwLeaguesPage(BasePage):
             dt = ''
             temp =timeary[0]
             if temp == '今日':
-                day = datetime.datetime.now().today()
+                day = datetime.datetime.now().day
                 month = datetime.datetime.now().month
             elif '星期' in temp:
                 month = timeary[3]

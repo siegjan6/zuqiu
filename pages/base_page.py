@@ -93,6 +93,8 @@ class BasePage:
     def find_elements_by_css(self, css_selector):
         # css_selector = 'input[id*=body_R_FT_]'
         return self.driver.find_elements_by_css_selector(css_selector)
+
+    # 'div[class=commath][data-status=is-open]'
 # def findElement(driver,element,by,value):
 #     try:
 #         # 保证元素可见

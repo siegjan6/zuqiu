@@ -115,6 +115,7 @@ class XjwDetialPage(BasePage):
         :param betParam: 盘口 1.25
         :return:
         """
+        betParam = str(betParam)
         if betType == 17:  # 找球队名称 17是+的，18是-的，数据网没有+号 为0就没有正负号
             datas = self.updateData()[0]
             for item in datas:

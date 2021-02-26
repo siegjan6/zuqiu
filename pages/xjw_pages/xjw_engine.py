@@ -5,10 +5,10 @@ import datetime
 from seleniumwire import webdriver
 
 from pages.xjw_pages.xjw_login_page import XjwLoginPage
-# user = 'iceking666'
-# pwd = 'iceking666'
-user = 'siegjan'
-pwd = 'Zhouj5134'
+user = 'iceking666'
+pwd = 'iceking666'
+# user = 'siegjan'
+# pwd = 'Zhouj5134'
 url = 'https://m.uqmxd.com/account/login'
 
 class XjwEngine():
@@ -87,6 +87,7 @@ class XjwEngine():
         return True
 
     def getKof(self, day, homeName, awayName, betType, betName, betParam):
+        self.loginPage.goHome()
         isToDay = datetime.datetime.now().day == day
         self.leaguesPage = self.homePage.goDay(isToDay)
         if not self.leaguesPage:
