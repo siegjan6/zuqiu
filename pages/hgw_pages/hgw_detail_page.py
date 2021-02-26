@@ -21,6 +21,8 @@ def getParam(txt):
 class HgwDetialPage(BasePage):
 
     def _findLeague(self, betType, betName, betParam):
+        self.invisibility_of_element_located(By.ID, 'loading')
+        self.invisibility_of_element_located(By.CLASS_NAME, 'loading')
         """
 
         :param betType: 17,18,19,20
@@ -50,6 +52,7 @@ class HgwDetialPage(BasePage):
         elif betType in (19, 20):
             if betType == 19: betName = '大'
             if betType == 20: betName = '小'
+            self.body_OU_FT_S()[0].location_once_scrolled_into_view
             eves = self.body_OU_FT_S()
             for e in eves:
                 _eles = e.find_elements_by_class_name('btn_lebet_odd')
@@ -67,7 +70,7 @@ class HgwDetialPage(BasePage):
                         kof = txts[-1]
                         if betName == name:
                             return [kof, v]
-        print('没有找到盘口')
+        print('没有找到盘口', param, betName)
         return False
 #self.find_elements_by_css( 'div[id*=body_R_FT_]')[0].find_elements_by_class_name('btn_lebet_odd')[0].text
 

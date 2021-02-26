@@ -29,7 +29,8 @@ class HgwLeaguesPage(BasePage):
         return self.driver.find_element_by_tag_name('html')
 
     def box_lebet_l(self): ## 比赛
-        return self.find_emelemts(By.CLASS_NAME, 'box_lebet_l')
+        return self.driver.find_elements_by_css_selector('div[class=box_lebet_l]')
+        # return self.find_emelemts(By.CLASS_NAME, 'box_lebet_l')
 
     def getLeaguesData(self):
         self.invisibility_of_element_located(By.ID, 'loading')
@@ -95,50 +96,57 @@ class HgwLeaguesPage(BasePage):
         l = -1
         while len(_leagues) != l:
             l = len(_leagues)
-            temams = self.box_lebet_l()
+            temams = self.find_elements_by_css('label[id=more]')
             length = len(temams)
             for i in range(length):
                 try:
                     e = temams[i]
-                    # print(e.text)
+
                     if not e:
                         continue
                     if not e.text:
                         continue
                     ary = e.text.split('\n')
-                    if len(ary) < 3:
+                    if len(ary) < 2:
                         continue
                     if ary[1] in _leagues.keys():
                         continue
 
-                    time = ary[0]
-                    homeName = ary[1]
-                    awayName = ary[2]
+                    homeName = ary[0]
+                    awayName = ary[1]
                     retData.append({
-                        'e': e,
-                        'time': time,
                         'homeName': homeName,
                         'awayName': awayName
                     })
                     b1 = homeName == hName
                     b2 = awayName == aName
                     if b1 and b2:
-                        # e.location_once_scrolled_into_view
-                        e.click()
+                        self.find_elements_by_css('label[id=more]')[i].location_once_scrolled_into_view
+                        eles = self.find_elements_by_css('label[id=more]')
+                        for e in eles:
+                            try:
+                                if not e:
+                                    continue
+                                if not e.text:
+                                    continue
+                                if e.text.split('\n')[0] == hName:
+                                    e.click()
+                            except:
+                                continue
+                        # e.
+                        # e.click()
                         # self.invisibility_of_element_located(By.ID, 'loading')
                         # self.invisibility_of_element_located(By.CLASS_NAME, 'loading')
+
                         return HgwDetialPage(self.driver)
                     _leagues[ary[1]] = ary[2]
                 except ValueError:
                     continue
-            html.send_keys(Keys.ARROW_DOWN * 40)
+            html.send_keys(Keys.ARROW_DOWN * 30)
+            sleep(1)
         return False
 
-    def updateTime(self, t):
-        interval = timedelta(hours=12)
-        d = datetime.datetime.fromtimestamp(t)
-        d = d + interval
-        return d.timestamp()
+
 
     def saveData(self):
         """
@@ -154,44 +162,47 @@ class HgwLeaguesPage(BasePage):
         datas = self.getLeaguesData()
         length = len(datas)
         for i in range(length):
-            d = datas[i]
-            timeary = d['time'].split(' ')
-            time = timeary[-1]
-            hour = time.split(':')[0]
-            if hour == '24':
-                hour = '0'
-            min = '0'
-            month=''
-            day = ''
-            dt = ''
-            temp =timeary[0]
-            if temp == '今日':
-                day = datetime.datetime.now().day
-                month = datetime.datetime.now().month
-            elif '星期' in temp:
-                month = timeary[3]
-                day = timeary[1]
-
-            if len(time.split(':')) > 1:
-                min = time.split(':')[1]
             try:
-                dt = datetime.datetime(2021, int(month), int(day), int(hour), int(min), 0)
+                d = datas[i]
+                timeary = d['time'].split(' ')
+                time = timeary[-1]
+                hour = time.split(':')[0]
+                if hour == '24':
+                    hour = '0'
+                min = '0'
+                month = ''
+                day = ''
+                dt = ''
+                temp = timeary[0]
+                if temp == '今日':
+                    day = datetime.datetime.now().day
+                    month = datetime.datetime.now().month
+                elif '星期' in temp:
+                    month = timeary[3]
+                    day = timeary[1]
+
+                if len(time.split(':')) > 1:
+                    min = time.split(':')[1]
+                try:
+                    dt = datetime.datetime(2021, int(month), int(day), int(hour), int(min), 0)
+                except:
+                    continue
+
+                interval = timedelta(hours=12)
+                dt = dt + interval
+                time = dt.strftime('%m-%d-%H:%M')
+
+                v = 'hgw/' + d['homeName'] + '/' + d['awayName']
+                if time not in config:
+                    config.add_section(time)
+
+                if v not in config[time]:
+                    if d['homeName'] not in item_config['name']:
+                        continue
+                    if d['awayName'] not in item_config['name']:
+                        continue
+                    config.set(time, v, '2')
             except:
-                continue
-
-            interval = timedelta(hours=12)
-            dt = dt + interval
-            time = dt.strftime('%m-%d-%H:%M')
-
-            v = 'hgw/' + d['homeName'] + '/' + d['awayName']
-            if time not in config:
-                config.add_section(time)
-
-            if v not in config[time]:
-                if d['homeName'] not in item_config['name']:
-                    continue
-                if d['awayName'] not in item_config['name']:
-                    continue
-                config.set(time, v, '2')
+                pass
                 
         config.write(open(self._path, 'w'))

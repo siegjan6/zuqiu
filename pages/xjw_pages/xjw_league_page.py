@@ -28,7 +28,8 @@ class XjwLeaguesPage(BasePage):
     def getLeaguesData(self):
         self.onAdjustArrow()
         elves = self.leagues()
-        # print(elves)
+        if not elves:
+            return []
         retData = []
         for e in elves:
             try:
@@ -52,7 +53,7 @@ class XjwLeaguesPage(BasePage):
         for item in leagues:
             b1 = item['homeName'] == hName
             b2 = item['awayName'] == aName
-            print(item['homeName'], item['awayName'])
+
             if b1 and b2:
                 e = item['e']
                 e.find_element_by_class_name('commatch_header').find_element_by_class_name('slideshow_1').location_once_scrolled_into_view  # 定位到

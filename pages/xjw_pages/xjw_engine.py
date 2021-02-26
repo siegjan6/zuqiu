@@ -1,5 +1,6 @@
 # encoding: utf-8
 # !/usr/bin/env python
+import threading
 import time
 import datetime
 from seleniumwire import webdriver
@@ -15,7 +16,20 @@ class XjwEngine():
     def __init__(self):
         self.is_init = False
         self.koef = None
+        self.isErrLeague= {}
         pass
+
+    def addErrorLeague(self, home, away):
+        if home + away in self.isErrLeague:
+            self.isErrLeague[home + away] = self.isErrLeague[home + away] + 1
+        else:
+            self.isErrLeague[home + away] = 1
+
+    def isErrorLeague(self, home, away):
+        if home + away in self.isErrLeague:
+            return self.isErrLeague[home + away]
+        else:
+            return None
 
     def _init_driver(self):
         self.is_init = False
@@ -87,6 +101,9 @@ class XjwEngine():
         return True
 
     def getKof(self, day, homeName, awayName, betType, betName, betParam):
+        if self.isErrorLeague(homeName, awayName):
+            self.koef = None
+            return False
         self.loginPage.goHome()
         isToDay = datetime.datetime.now().day == day
         self.leaguesPage = self.homePage.goDay(isToDay)
@@ -97,12 +114,42 @@ class XjwEngine():
         if not self.detailPage:
             return False
         self.koef = self.detailPage.findLeagueKof(betType, betName, betParam)
+        if not self.koef:
+            self.addErrorLeague(homeName, awayName)
         return self.koef
 
-    def xiazhu(self, betType, betName, betParam, value):
+    def xiazhu(self, d, value):
+        homeName = d['xjw']['home']
+        awayName = d['xjw']['away']
+        time = d['xjw']['started_at']
+        kof = d['xjw']['koef']
+        betType = d['xjw']['bet_type_name']
+        betParam = d['xjw']['market_and_bet_type_param']
+        betName = d['xjw']['bet_name']
         v = self.detailPage.onBet(betType, betName, betParam, value)
         return v
 
+    def threading_init(self):
+        t = threading.Thread(target= self.onInit)
+        t.setDaemon(True)
+        t.start()
+        return t
+
+    def threading_getkoef(self, d):
+        homeName = d['xjw']['home']
+        awayName = d['xjw']['away']
+        time = d['xjw']['started_at']
+        kof = d['xjw']['koef']
+        betType = d['xjw']['bet_type_name']
+        betParam = d['xjw']['market_and_bet_type_param']
+        betName = d['xjw']['bet_name']
+
+        dt = datetime.datetime.fromtimestamp(time)
+        day = dt.day
+        t = threading.Thread(target=self.getKof, args=(day, homeName, awayName, betType, betName, betParam))
+        t.setDaemon(True)
+        t.start()
+        return t
 
 if __name__ == '__main__':
     xjwEngine = XjwEngine()

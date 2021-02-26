@@ -12,6 +12,7 @@ import datetime
 import wechat2
 import json
 from time import sleep
+import getpass
 
 class LeagueEngine:
     def __init__(self):
@@ -26,6 +27,18 @@ class LeagueEngine:
         }
         self.token = ''
         self._get_access_token()
+
+        self.itemPath = 'C:/Users/' + getpass.getuser() + '/Documents/GitHub/zuqiu/tmp/item_config.ini'
+        self.itemConfig = configparser.ConfigParser()
+        self.itemConfig.read(self.itemPath)
+
+    def getItemName(self, name):
+        h = self.itemConfig['name'].get(name)
+        if not h:
+            # print('未找到对应的xjw队名')
+            return name  #None
+        else:
+            return h
 
     def _get_access_token(self):
         self.session = requests.session()
@@ -69,27 +82,26 @@ class LeagueEngine:
         while True:
             ret = self.request_data()
             if len(ret) == 0:
-                sleep(3)
+                sleep(30)
                 continue
             return ret
 
     # 得到球队名称
     def get_bet_name(self, arb):
         if arb['bet1_id'] == arb['hgw']['id']:
-            arb['hgw']['bet_name'] = arb['team1_name']
-            arb['xjw']['bet_name'] = arb['team2_name']
+            arb['hgw']['bet_name'] = arb['hgw']['home']
+            arb['xjw']['bet_name'] = self.getItemName(arb['hgw']['away'])
         else:
-            arb['hgw']['bet_name'] = arb['team2_name']
-            arb['xjw']['bet_name'] = arb['team1_name']
+            arb['hgw']['bet_name'] = arb['hgw']['away']
+            arb['xjw']['bet_name'] = self.getItemName(arb['hgw']['home'])
         return arb
+
 
     # 更新数据 剔除系数>1的球队和让球大小以外的盘口，连接arb,brb数据
     def update_data(self, data, xjw_v=5000):
         ret = []
         if data == []:
             return data
-        # 遍历利润率
-        # print(data)
         for arb in data['arbs']:
             arb['bet1_v'] = self.find_betid(arb['bet1_id'], data)
             arb['bet2_v'] = self.find_betid(arb['bet2_id'], data)
@@ -104,6 +116,15 @@ class LeagueEngine:
                         arb['hgw']['bet_type_name'] = self.getConfig('market_and_bet_type', tv1)
                         arb['xjw']['bet_type_name'] = self.getConfig('market_and_bet_type', tv2)
                         arb = self.get_bet_name(arb)
+
+                        hname = self.getItemName(arb['hgw']['home'])
+                        aname = self.getItemName(arb['hgw']['away'])
+                        if not hname or not aname:  # item_config.ini有名字 才返回数据
+                            continue
+                        arb['xjw']['home'] = hname
+                        arb['xjw']['away'] = aname
+                        arb['hgw']['started_at'] = self.updateTime(arb['hgw']['started_at'] )
+
                         ret.append(arb)
             else:
                 break
@@ -112,6 +133,17 @@ class LeagueEngine:
 
     def take_started(self, e):
         return e['started_at']
+
+    def koef_isok(self, k1, k2):
+        v = (1.0 / float(k1)) + (1.0 / float(k2))
+        print(v)
+        return v <= 2
+
+    def get_value(self,k1,k2,v2):
+        k1 = float(k1)
+        k2 = float(k2)
+        v = (1 / k1) / (1 / k2) * v2
+        return v
 
     def update_val(self, arb, xjw_v):
         koef_1 = arb['bet1_v']['koef']
@@ -259,13 +291,20 @@ class LeagueEngine:
             return ret[0]
 
     def updateTime(self, t):
-        # interval = datetime.timedelta(hours=-12)
+        interval = datetime.timedelta(hours=-12)
         d = datetime.datetime.fromtimestamp(t)
-        # r = d.strftime('%Y-%m-%d %H:%M:%S')
-        r = d.strftime('%H:%M')
-        return r
+        d = d + interval
+        return d.timestamp()
 
     def saveData(self):
+
+        def time_format(t):
+            interval = datetime.timedelta(hours=-12)
+            d = datetime.datetime.fromtimestamp(t)
+            # r = d.strftime('%Y-%m-%d %H:%M:%S')
+            r = d.strftime('%H:%M')
+            return r
+
         config = configparser.ConfigParser()
         config.read(self._path)
 
@@ -282,7 +321,7 @@ class LeagueEngine:
         bets = r_data['bets']
         for d in bets:
             if d['bookmaker_id'] == 5:  # hgw
-                time = self.updateTime(d['started_at'])
+                time = time_format(d['started_at'])
                 if time not in config:
                     config.add_section(time)
                 v = 'hgw' + d['bookmaker_event_name']

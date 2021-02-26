@@ -91,5 +91,11 @@ print(request)
 # self.DV.find_element_by_class_name('icon-arrow-right').click()   # 第一个进去
 
 ## self.DV.find_elements_by_class_name('commatch_header') 所有的比赛
-
-# 会未找到比赛，
+#
+#
+# def updateTime(t):
+#     interval = datetime.timedelta(hours=12)
+#     d = datetime.datetime.fromtimestamp(t)
+#     d = d + interval
+#     return d.timestamp()
+#

@@ -20,7 +20,7 @@ loginPage = HgwLoginPage(DV, url)
 loginPage.open()
 homePage = loginPage.login(user, pwd)
 
-day = datetime.datetime.now().day
+day = 1#datetime.datetime.now().day
 for i in range(5):
     leaguesPage = homePage.goDay(day)
     if leaguesPage:

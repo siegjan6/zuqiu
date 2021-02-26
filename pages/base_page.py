@@ -8,7 +8,7 @@ from selenium.webdriver.support import expected_conditions as EC  # available si
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
-DEFAULT_SECOND = 15
+DEFAULT_SECOND = 30
 
 
 class BasePage:
@@ -37,16 +37,18 @@ class BasePage:
     def find_emelemt(self, by, value):
         try:
             # 保证元素可见
-            print('findEment', by, value)
+            # print('findEment', by, value)
             WebDriverWait(self.driver, DEFAULT_SECOND).until(EC.visibility_of_all_elements_located((by, value)))
-            return self.driver.find_element(by, value)
+            r = self.driver.find_element(by, value)
+            # print('findEment End', by, value)
+            return r
         except:
             print("页面中没有 %", by, value)
         return None
 
     def find_emelemts(self, by, value):
         try:
-            print('findEments', by, value)
+            # print('findEments', by, value)
             WebDriverWait(self.driver, DEFAULT_SECOND).until(EC.visibility_of_element_located((by, value)))
             sleep(3)
             return self.driver.find_elements(by, value)
@@ -87,7 +89,7 @@ class BasePage:
         return r
 
     def invisibility_of_element_located(self, by, v):
-        print('invisibility_of_element_located', by, v)
+        # print('invisibility_of_element_located', by, v)
         return WebDriverWait(self.driver, 60).until(EC.invisibility_of_element_located((by, v)))
 
     def find_elements_by_css(self, css_selector):
